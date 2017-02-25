@@ -1,0 +1,16 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+	mavenCentral()
+	maven { url "https://jitpack.io" } // github
+}
+
+dependencies {
+	compile 'com.google.guava:guava:19.0'
+
+	testCompile 'org.testng:testng:6.9.10'
+	testCompile 'org.mockito:mockito-all:2.0.2-beta'
+	testCompile 'com.github.segg3r:testng.util:1.2'
+	testCompile 'com.github.segg3r:ExpectUnit:1.0.2'
+}
