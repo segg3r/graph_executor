@@ -1,6 +1,13 @@
 package org.segg3r.graph;
 
+import com.google.common.collect.Lists;
+import org.segg3r.graph.execution.DependencyGraphProcessingContext;
+import org.segg3r.graph.execution.DependencyGraphProcessingCallback;
+import org.segg3r.graph.execution.step.DependencyGraphProcessingStep;
+import org.segg3r.graph.execution.step.SingleDependencyGraphProcessingStep;
+
 import java.util.Optional;
+import java.util.Queue;
 
 import static org.segg3r.graph.DependencyGraphElement.*;
 
@@ -14,6 +21,19 @@ public class DependencyGraph<T> {
 
 	private DependencyGraph(DependencyGraphElement<T> head) {
 		this.head = head;
+	}
+
+	public void process(DependencyGraphProcessingCallback<T> callback) {
+		DependencyGraphProcessingContext<T> context = new DependencyGraphProcessingContext<>(this, callback);
+		SingleDependencyGraphProcessingStep<T> headExecutionStep = context.getStep(getHead());
+
+		Queue<DependencyGraphProcessingStep<T>> executionQueue = Lists.newLinkedList();
+		executionQueue.add(headExecutionStep);
+		executionQueue.addAll(headExecutionStep.getExecutionQueue());
+
+		while (!executionQueue.isEmpty()) {
+			executionQueue.poll().execute();
+		}
 	}
 
 	public DependencyGraphElement<T> getHead() {

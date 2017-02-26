@@ -4,4 +4,6 @@ build/*
 
 # Idea
 .idea/*
-.iml/*
+*.iml
+*.ipr
+*.iws
