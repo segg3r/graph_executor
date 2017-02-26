@@ -1,6 +1,7 @@
 package org.segg3r.graph;
 
 import com.google.common.collect.Sets;
+import org.segg3r.graph.exception.CircularDependencyException;
 
 import java.util.Optional;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class DependencyGraphElement<T> {
 	}
 
 	public boolean addDependent(DependencyGraphElement<T> dependent) {
+		if (dependent.isDependencyOf(this)) throwCircularDependencyException(dependent, this);
 		if (isDependencyOf(dependent)) return false;
 
 		this.directDependents.add(dependent);
@@ -53,6 +55,7 @@ public class DependencyGraphElement<T> {
 	}
 
 	public boolean addDependency(DependencyGraphElement<T> dependency) {
+		if (dependency.dependsOn(this)) throwCircularDependencyException(dependency, this);
 		if (dependsOn(dependency)) return false;
 
 		this.directDependencies.add(dependency);
@@ -60,6 +63,14 @@ public class DependencyGraphElement<T> {
 		dependency.addDependent(this);
 
 		return true;
+	}
+
+	private void throwCircularDependencyException(DependencyGraphElement<T> first, DependencyGraphElement<T> second) {
+		Object firstObject = first.getEntity().orElse(null);
+		Object secondObject = second.getEntity().orElse(null);
+		String message = "Could not create graph. Objects " + firstObject + " and " + secondObject + "have circular dependency on each other.";
+
+		throw new CircularDependencyException(message, firstObject, secondObject);
 	}
 
 	public boolean removeDirectDependency(DependencyGraphElement<T> dependency) {

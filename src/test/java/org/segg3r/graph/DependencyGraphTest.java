@@ -2,6 +2,7 @@ package org.segg3r.graph;
 
 import by.segg3r.testng.util.spring.SpringContextListener;
 import org.mockito.InOrder;
+import org.segg3r.graph.exception.CircularDependencyException;
 import org.segg3r.graph.execution.DependencyGraphProcessingStepStateChange;
 import org.segg3r.graph.execution.DependencyGraphProcessingCallback;
 import org.testng.annotations.Listeners;
@@ -38,6 +39,15 @@ public class DependencyGraphTest {
 
 		expect(graph.find(givenEntity("child")).get().directlyDependsOn(givenEntity("parent"))).toBeTruthy();
 		expect(graph.find(givenEntity("parent")).get().isDirectDependencyOf(givenEntity("child"))).toBeTruthy();
+	}
+
+	@Test(description = "should throw exception in case of circular dependency",
+		expectedExceptions = CircularDependencyException.class)
+	public void testCircularDependency() {
+		DependencyGraph<Entity> graph = emptyGraph();
+		graph.addDependency(givenEntity("two"), givenEntity("one"));
+		graph.addDependency(givenEntity("three"), givenEntity("two"));
+		graph.addDependency(givenEntity("one"), givenEntity("three"));
 	}
 
 	@Test(description = "should resolve intermediate dependencies"
